@@ -1,10 +1,10 @@
 # DeepSeek V4 Flash 本地开源模型接口
 
-本入口是为老师已有的 **DeepSeek-V4-Flash 开源权重**准备的：在 GPU 节点内直接调用 `vllm.LLM.generate`。不启动 HTTP 服务，不调用商业 API，不需要 DeepSeek API key。
+本入口在 GPU 节点内通过 `vllm.LLM.generate` 加载 **DeepSeek-V4-Flash 开源权重**，执行离线推理，无需 HTTP 推理服务或 API key。
 
 它与 R1-Distill 是不同模型，不能使用本仓库 R1/Qwen 的旧 Transformers 4.48.1 环境直接加载。这里复用实验流程，另加 V4 专用的权重加载、消息编码和输出解析适配。
 
-## 先使用老师已有的 V4 推理环境
+## 环境要求
 
 需要支持**实际 checkpoint 版本和 GPU 架构**的 vLLM 环境。请优先沿用已经能运行该模型的环境；不要安装 `requirements-local.txt` 覆盖它，那份依赖仅供 R1/Qwen Transformers 后端。
 
@@ -12,9 +12,9 @@
 
 ## 最小使用步骤
 
-1. 将本仓库放到老师的 GPU 环境。
+1. 在具备 V4 Flash 推理环境的 GPU 节点克隆本仓库。
 2. 准备本地 V4 Flash checkpoint、同版本的 `encoding_dsv4.py` 和 OEQ 数据。
-3. 把现有引擎配置写成 JSON 文件，参数名使用 `vllm.LLM` 的 Python 参数名，例如 `tensor_parallel_size`、`enable_expert_parallel`、`kv_cache_dtype`、`block_size` 等。实际值取决于老师已经验证的部署。**不要照搬两张 A40 的 R1 示例。**
+3. 将引擎配置写成 JSON 文件，参数名使用 `vllm.LLM` 的 Python 参数名，例如 `tensor_parallel_size`、`enable_expert_parallel`、`kv_cache_dtype`、`block_size` 等。参数应匹配实际 GPU、checkpoint 和已验证的部署配置。R1 示例中的两张 A40 配置不适用于此入口。
 4. 先 dry-run，再运行一个源病例。
 
 ```bash
@@ -54,7 +54,7 @@ python qwen_standard_v2/local_runner.py \
 
 参数、代码、编码器、模型路径、checkpoint 元信息和数据选择会进入 manifest。相同目录重跑复用缓存；改变这些内容需新目录。通过 `--reviews` 补充语义/医学审核后可重算，不会重复模型调用。结果保留候选与正式审核通过的区别。
 
-这次已完成离线流程测试及官方编码器兼容检查，**没有老师的权重和 GPU 环境，因此未完成真实 V4 推理验证**。引擎版本和硬件参数必须在她的环境做一次真实 smoke test。
+已完成离线流程测试及官方编码器兼容检查，**尚未完成真实 V4 GPU 推理验证**。正式实验前，应在目标部署环境运行一次小规模推理测试，验证引擎版本、硬件配置和输出格式。
 
 该接口用于行为数据筛选；尚未实现 vLLM 内部 hidden-state 导出或 steering。之后提取 vector 需要另接 worker/model 内部激活 hook。
 

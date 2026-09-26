@@ -1,10 +1,10 @@
 # 用 DeepSeek 开源权重运行实验（不是 API）
 
-**本页仅对应 R1-Distill / Qwen。老师的 V4 Flash 请使用 [V4 专用说明](DEEPSEEK_V4_FLASH.md)，不要安装下面的旧 Transformers 环境。**
+**本页仅适用于 R1-Distill / Qwen。V4 Flash 的环境和运行方法见 [V4 专用说明](DEEPSEEK_V4_FLASH.md)。**
 
 入口：`qwen_standard_v2/local_runner.py`。通过 Transformers 在自己的 GPU 上加载本地权重，不需要 DeepSeek API key，不调用远程推理服务。无需原 Skynet 历史目录，也不必运行旧集群的 `prepare.py`。
 
-适配目标是 **DeepSeek-R1-Distill-Qwen** 等 Transformers 支持的 dense checkpoint，示例使用 32B。它不等同于完整版 DeepSeek-R1/V3；完整版 MoE 的分布式部署、量化专用格式和其他架构不在这次已实现的支持范围内。老师应传入实际要研究的模型路径。
+适配目标是 **DeepSeek-R1-Distill-Qwen** 等 Transformers 支持的 dense checkpoint，示例使用 32B。此后端不支持完整版 DeepSeek-R1/V3 MoE 的分布式部署或量化专用格式。运行时通过 `--model-path` 指定实际 checkpoint 路径。
 
 ## 安装和输入
 
@@ -66,7 +66,7 @@ Sequential 的历史有两个明确配置：
 
 默认禁止 CPU/disk offload，避免无意变成极慢运行；确需允许时显式设置 `--allow-cpu-offload`。需要自定义模型代码的 checkpoint 必须显式设置 `--trust-remote-code`；本接口不因此保证该架构受支持。
 
-本次提供的是**本地行为实验接口**。模型对象保留在 `HFBackend.model`，之后可扩展 hidden-state 抽取；本次没有宣称已经实现 probe 训练或 steering。
+当前接口支持本地行为实验。模型对象保留在 `HFBackend.model`，可用于扩展 hidden-state 抽取；probe 训练和 steering 尚未实现。
 
 ## 测试
 

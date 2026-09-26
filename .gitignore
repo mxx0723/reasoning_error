@@ -5,6 +5,8 @@ __pycache__/
 .env.*
 !.env.example
 results/
+runs/
+data/
 results_batch_*/
 slurm-*.out
 slurm-*.err

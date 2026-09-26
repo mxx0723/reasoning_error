@@ -1,0 +1,5 @@
+# Install the CUDA-enabled PyTorch build appropriate for your cluster first.
+torch>=2.6
+transformers==4.48.1
+accelerate>=1.2,<2
+safetensors>=0.4
